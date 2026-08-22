@@ -21,7 +21,7 @@ int main()
     printf("Enter Password: ");
     scanf("%s", password);
 
-    if (strcmp(username, "admin") == 0 &&
+    if  strcmp(username, "admin") == 0 &&
         strcmp(password, "1234") == 0)
     {
         printf("\n Login Successful \n");
