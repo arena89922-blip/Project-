@@ -1,90 +1,213 @@
-
 #include <stdio.h>
-#include <string.h>
+
+#define MENU_SIZE 5
+
+struct Food
+{
+    int id;
+    char name[30];
+    float price;
+};
+
+struct Food menu[MENU_SIZE] =
+{
+    {1, "Idli", 40.00},
+    {2, "Dosa", 60.00},
+    {3, "Fried Rice", 100.00},
+    {4, "Biriyani", 150.00},
+    {5, "Coffee", 30.00}
+};
+
+char credentials[2][20] = {"admin", "1234"};
+char input[20];
+
+int  isSpace(int c);
+void readWord();
+int  readInt();
+int  login();
+void displayMenu();
+void generateBill(struct Food item, int quantity);
 
 int main()
 {
-    char username[20], password[20];
     int choice, quantity;
-    float total, gst, grandTotal;
-
-    // Arrays to store the food menu data
-    int itemIds[5] = {1, 2, 3, 4, 5};
-    char *itemNames[5] = {"Idli", "Dosa", "Fried Rice", "Biriyani", "Coffee"};
-    float itemPrices[5] = {40.00, 60.00, 100.00, 150.00, 30.00};
 
     printf("=========================================\n");
     printf("        ARAMANE DONNE BIRYANI            \n");
     printf("=========================================\n");
-    
-    printf("\n--- LOGIN ---\n");
-    printf("Enter Username: ");
-    scanf("%19s", username);
 
-    printf("Enter Password: ");
-    scanf("%19s", password);
-
-    if (strcmp(username, "admin") == 0 && strcmp(password, "1234") == 0)
+    if (login())
     {
-        printf("\n>>> Login Successful! <<<\n");
+        printf("\nLogin Successful!\n");
 
-        printf("\n============== FOOD MENU ==============:\n");
-        for (int i = 0; i < 5; i++)
-        {
-            printf("%d. %-12s - Rs. %.2f\n", itemIds[i], itemNames[i], itemPrices[i]);
-        }
-        printf("=======================================\n");
+        displayMenu();
 
         printf("\nEnter your choice (1-5): ");
-        scanf("%d", &choice);
-
-        // Validate choice using array bounds
-        if (choice < 1 || choice > 5)
+        choice = readInt();
+        if (choice < 1 || choice > MENU_SIZE)
         {
-            printf("\n>>> Invalid choice! Program terminated. <<<\n");
+            printf("Invalid choice!\n");
             return 0;
         }
 
         printf("Enter quantity: ");
-        scanf("%d", &quantity);
-
+        quantity = readInt();
         if (quantity <= 0)
         {
-            printf("\n>>> Invalid quantity! Program terminated. <<<\n");
+            printf("Invalid quantity!\n");
             return 0;
         }
 
-        // Get index based on choice (Choice 1 is at index 0)
-        int index = choice - 1;
-        float price = itemPrices[index];
-
-        // Calculations
-        total = price * quantity;
-        gst = total * 0.05;
-        grandTotal = total + gst;
-
-        // Separate Structured Bill Format
-        printf("\n\n=========================================\n");
-        printf("        ARAMANE DONNE BIRYANI            \n");
-        printf("            OFFICIAL RECEIPT             \n");
-        printf("=========================================\n");
-        printf("Item Ordered  : %s\n", itemNames[index]);
-        printf("Unit Price    : Rs. %.2f\n", price);
-        printf("Quantity      : %d\n", quantity);
-        printf("-----------------------------------------\n");
-        printf("Subtotal      : Rs. %.2f\n", total);
-        printf("GST (5%%)      : Rs. %.2f\n", gst);
-        printf("-----------------------------------------\n");
-        printf("GRAND TOTAL   : Rs. %.2f\n", grandTotal);
-        printf("=========================================\n");
-        printf("       THANK YOU! PLEASE VISIT AGAIN     \n");
-        printf("=========================================\n");
+        generateBill(menu[choice - 1], quantity);
     }
     else
     {
-        printf("\n>>> Wrong Username or Password! <<<\n");
-        printf(">>> Login Failed. <<<\n");
+        printf("\nWrong Username or Password!\n");
+        printf("Login Failed!\n");
     }
 
     return 0;
+}
+
+int isSpace(int c)
+{
+    return c == ' ' || c == '\n' || c == '\t' || c == '\r';
+}
+
+void readWord()
+{
+    int c, i = 0;
+
+    do
+    {
+        c = getchar();
+    } while (isSpace(c));
+
+    while (c != EOF && !isSpace(c))
+    {
+        if (i < 19)
+        {
+            input[i] = (char)c;
+            i++;
+        }
+        c = getchar();
+    }
+    input[i] = '\0';
+}
+
+int readInt()
+{
+    int c, value = 0, digits = 0;
+
+    do
+    {
+        c = getchar();
+    } while (isSpace(c));
+
+    while (c >= '0' && c <= '9')
+    {
+        if (value < 100000)
+        {
+            value = value * 10 + (c - '0');
+        }
+        digits++;
+        c = getchar();
+    }
+
+    while (c != '\n' && c != EOF)
+    {
+        c = getchar();
+    }
+
+    if (digits == 0)
+    {
+        return -1;
+    }
+    return value;
+}
+
+int login()
+{
+    int step, i, same, allCorrect = 1;
+
+    printf("\n------------ LOGIN ------------\n");
+
+    for (step = 0; step < 2; step++)
+    {
+        if (step == 0)
+        {
+            printf("Enter Username: ");
+        }
+        else
+        {
+            printf("Enter Password: ");
+        }
+
+        readWord();
+
+        same = 1;
+        i = 0;
+        while (input[i] != '\0' || credentials[step][i] != '\0')
+        {
+            if (input[i] != credentials[step][i])
+            {
+                same = 0;
+                break;
+            }
+            i++;
+        }
+
+        if (!same)
+        {
+            allCorrect = 0;
+        }
+    }
+
+    return allCorrect;
+}
+
+void displayMenu()
+{
+    int i;
+
+    printf("\n============== FOOD MENU ==============\n");
+
+    for (i = 0; i < MENU_SIZE; i++)
+    {
+        printf("%d. %-12s - Rs. %.2f\n",
+               menu[i].id,
+               menu[i].name,
+               menu[i].price);
+    }
+
+    printf("=======================================\n");
+}
+
+void generateBill(struct Food item, int quantity)
+{
+    float total, gst, grandTotal;
+
+    total = item.price * quantity;
+    gst = total * 0.05;
+    grandTotal = total + gst;
+
+    printf("\n=========================================\n");
+    printf("        ARAMANE DONNE BIRYANI            \n");
+    printf("            OFFICIAL RECEIPT             \n");
+    printf("=========================================\n");
+
+    printf("Item Ordered  : %s\n", item.name);
+    printf("Unit Price    : Rs. %.2f\n", item.price);
+    printf("Quantity      : %d\n", quantity);
+
+    printf("-----------------------------------------\n");
+    printf("Subtotal      : Rs. %.2f\n", total);
+    printf("GST (5%%)      : Rs. %.2f\n", gst);
+
+    printf("-----------------------------------------\n");
+    printf("GRAND TOTAL   : Rs. %.2f\n", grandTotal);
+
+    printf("=========================================\n");
+    printf("       THANK YOU! PLEASE VISIT AGAIN     \n");
+    printf("=========================================\n");
 }
