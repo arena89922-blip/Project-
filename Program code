@@ -1,0 +1,145 @@
+#include <stdio.h>
+#include <string.h>
+
+// Structure to store food details
+struct Food
+{
+    int id;
+    char name[30];
+    float price;
+};
+
+// Function declarations
+int login();
+void displayMenu(struct Food menu[], int size);
+void generateBill(struct Food menu[], int choice, int quantity);
+
+int main()
+{
+    int choice, quantity;
+
+    // Array of structures
+    struct Food menu[5] =
+    {
+        {1, "Idli", 40.00},
+        {2, "Dosa", 60.00},
+        {3, "Fried Rice", 100.00},
+        {4, "Biriyani", 150.00},
+        {5, "Coffee", 30.00}
+    };
+
+    printf("=========================================\n");
+    printf("        ARAMANE DONNE BIRYANI            \n");
+    printf("=========================================\n");
+
+    // Calling login function
+    if (login())
+    {
+        printf("\nLogin Successful!\n");
+
+        // Calling menu function
+        displayMenu(menu, 5);
+
+        printf("\nEnter your choice (1-5): ");
+        if (scanf("%d", &choice) != 1)
+        {
+            printf("Invalid input!\n");
+            return 0;
+        }
+
+        if (choice < 1 || choice > 5)
+        {
+            printf("Invalid choice!\n");
+            return 0;
+        }
+
+        printf("Enter quantity: ");
+        if (scanf("%d", &quantity) != 1 || quantity <= 0)
+        {
+            printf("Invalid quantity!\n");
+            return 0;
+        }
+
+        // Calling billing function
+        generateBill(menu, choice, quantity);
+    }
+    else
+    {
+        printf("\nWrong Username or Password!\n");
+        printf("Login Failed!\n");
+    }
+
+    return 0;
+}
+
+// Function to check login details
+int login()
+{
+    char username[20], password[20];
+
+    printf("\n------------ LOGIN ------------\n");
+
+    printf("Enter Username: ");
+    scanf("%19s", username);
+
+    printf("Enter Password: ");
+    scanf("%19s", password);
+
+    if (strcmp(username, "admin") == 0 &&
+        strcmp(password, "1234") == 0)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+// Function to display food menu
+void displayMenu(struct Food menu[], int size)
+{
+    int i;
+
+    printf("\n============== FOOD MENU ==============\n");
+
+    for (i = 0; i < size; i++)
+    {
+        printf("%d. %-12s - Rs. %.2f\n",
+               menu[i].id,
+               menu[i].name,
+               menu[i].price);
+    }
+
+    printf("=======================================\n");
+}
+
+// Function to generate bill
+void generateBill(struct Food menu[], int choice, int quantity)
+{
+    int index = choice - 1;
+
+    float total, gst, grandTotal;
+
+    total = menu[index].price * quantity;
+    gst = total * 0.05;
+    grandTotal = total + gst;
+
+    printf("\n=========================================\n");
+    printf("        ARAMANE DONNE BIRYANI            \n");
+    printf("            OFFICIAL RECEIPT             \n");
+    printf("=========================================\n");
+
+    printf("Item Ordered  : %s\n", menu[index].name);
+    printf("Unit Price    : Rs. %.2f\n", menu[index].price);
+    printf("Quantity      : %d\n", quantity);
+
+    printf("-----------------------------------------\n");
+    printf("Subtotal      : Rs. %.2f\n", total);
+    printf("GST (5%%)      : Rs. %.2f\n", gst);
+
+    printf("-----------------------------------------\n");
+    printf("GRAND TOTAL   : Rs. %.2f\n", grandTotal);
+
+    printf("=========================================\n");
+    printf("       THANK YOU! PLEASE VISIT AGAIN     \n");
+    printf("=========================================\n");
+}
